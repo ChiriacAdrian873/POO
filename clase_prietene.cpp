@@ -17,6 +17,14 @@ public:
     {
         cout<<"Numele:"<<nume<<" Varsta:"<<varsta<<endl;
     }
+    string GetNume() const
+    {
+        return nume;
+    }
+    int GetVarsta() const
+    {
+        return varsta;
+    }
 };
 
 class Student:public Persoana{
@@ -31,6 +39,14 @@ public:
     void afiseaza_informatii()
     {
         cout<<"Numele:"<<nume<<" Varsta:"<<varsta<<" Medie:"<<medie<<endl;
+    }
+    bool operator>(const Student& celalalt_obiect) const
+    {
+        return this->medie > celalalt_obiect.medie;
+    }
+    bool operator<(const Student& celalalt_obiect) const
+    {
+        return this->medie < celalalt_obiect.medie;
     }
 };
 
@@ -57,5 +73,20 @@ int main(){
     Admin admin;
     admin.modifica_medie(s2, 5);
     admin.afiseaza_detalii_student(s2);
+
+    if(s1>s2)
+    {
+        cout<<s1.GetNume()<<" are media mai mare decat "<<s2.GetNume()<<endl;
+    }
+    else
+    {
+        cout<<s2.GetNume()<<" are media mai mare decat "<<s1.GetNume()<<endl;
+    }
     return 0;
+
+    /*Sa se creeze un program c++ pt gestionarea locurilor de parcare
+    avem: nr parcare, nr goale
+    citim: nr inmatriculare, ora intrare, minutul intrare, ora iesire, tarif pe ora
+    implementat: clasa, obiect, constructor, destructor, metoda, clasa derivata, prietena
+    */
 }
