@@ -1,8 +1,79 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <windows.h>
 
 using namespace std;
+
+void maximizeWindow(){
+    HWND hwnd = GetConsoleWindow();
+    ShowWindow(hwnd, SW_SHOWMAXIMIZED);
+}
+
+int nrVehicule;
+
+void convertire(string& s)  //pt transformarea in majuscule a literelor din nr inmatriculare
+{
+    for(int i=0; i<s.length(); i++)
+    {
+        if(s[i]>='a' && s[i]<='z')
+            s[i]=s[i]-32;
+    }
+}
+
+void infrum(string& s)  //transforma in majuscula datele vehiculelor
+{
+    s[0]=toupper(s[0]);
+}
+
+struct vehicul
+{
+    string nrInmat, numeProp, marca, model, culoare;
+    int id;
+    vehicul* link;
+};
+
+vehicul* p=NULL;
+
+void vehiculNou(vehicul*& p, string nrI, int idV)
+{
+    string nP, m, mdl, cul;
+    vehicul* x=new vehicul;
+    cout<<endl<<"Acest vehicul nu este salvat in baza de date!"<<endl;
+    cout<<endl<<"Introduceti numele proprietarului: "; cin>>nP; infrum(nP);
+    cout<<endl<<"Marca vehiculului: "; cin>>m; infrum(m);
+    cout<<endl<<"Modelul: "; cin>>mdl; infrum(mdl);
+    cout<<endl<<"Si culoarea: "; cin>>cul; infrum(cul);
+    x->id=idV; x->nrInmat=nrI;
+    x->numeProp=nP; x->marca=m; x->model=mdl; x->culoare=cul;
+    x->link=NULL;
+    if(p==NULL)
+        p=x;
+    else
+    {
+        vehicul* iter=p;
+        while(iter->link!=NULL)
+            iter=iter->link;
+        iter->link=x;
+    }
+    nrVehicule++;
+}
+
+int verificaExistenta(vehicul*& p, string nrI) //returneaza 0 daca nu este deja salvat
+{
+    if(p==NULL)
+        return 0;
+    else
+    {
+        vehicul *iter=p;
+        while(iter->link!=NULL)
+        {
+            if(iter->nrInmat==nrI)
+                return 1;
+        }
+        return 0;
+    }
+}
 
 int nrOcupate, nrGoale;
 
@@ -12,7 +83,8 @@ void meniu()
     cout<<endl<<"2. Oprire bilet parcare"<<endl;
     cout<<endl<<"3. Verificare status loc parcare"<<endl;
     cout<<endl<<"4. Vizualizare istoric loc parcare"<<endl;
-    cout<<endl<<"5. Iesire"<<endl;
+    cout<<endl<<"5. Vizualizare vehicule salvate"<<endl;
+    cout<<endl<<"6. Iesire"<<endl;
     cout<<endl<<"Alegeti o operatie: ";
 }
 
@@ -25,22 +97,11 @@ private:
 protected:
     string istoric[5]={"-","-","-","-","-"};
     string nrInmatriculare;
-    int idParcare;
-    int oraIntrare;
-    int minIntrare;
-    int oraIesire;
-    int minIesire;
-    int tarif;
+    int idParcare, oraIntrare, minIntrare, oraIesire, minIesire, tarif;
 public:
     LocParcare(string nrInmatriculare, int idParcare, int oraIntrare, int minIntrare, int oraIesire, int minIesire, int tarif)
     {
-        this->nrInmatriculare=nrInmatriculare;
-        this->idParcare=idParcare;
-        this->oraIntrare=oraIntrare;
-        this->minIntrare=minIntrare;
-        this->oraIesire=oraIesire;
-        this->minIesire=minIesire;
-        this->tarif=tarif;
+        this->nrInmatriculare=nrInmatriculare; this->idParcare=idParcare; this->oraIntrare=oraIntrare; this->minIntrare=minIntrare; this->oraIesire=oraIesire; this->minIesire=minIesire; this->tarif=tarif;
     }
     void afisare_detalii()
     {
@@ -63,9 +124,25 @@ public:
 class Admin
 {
 public:
+    void afisareVehicule(vehicul*& p)
+    {
+        if(p==NULL)
+        {
+            cout<<endl<<"Nu exista nici un vehicul salvat!"; return;
+        }
+        else
+        {
+            vehicul* iter=p;
+            cout<<iter->id<<": "<<iter->nrInmat<<", "<<iter->numeProp<<", "<<iter->marca<<" "<<iter->model<<" "<<", "<<iter->culoare<<endl;
+            while(iter->link!=NULL)
+            {
+                cout<<iter->id<<": "<<iter->nrInmat<<", "<<iter->numeProp<<", "<<iter->marca<<" "<<iter->model<<" "<<iter->culoare<<endl;
+            }
+        }
+    }
     void afisareParcare(LocParcare* l[], int n)
     {
-        for(int i=1; i<=n/2+n%2; i++)
+        /*for(int i=1; i<=n/2+n%2; i++)
         {
             if(i<=n/2)
             {
@@ -76,7 +153,24 @@ public:
             }
             else
                 cout<<setfill(' ')<<setw(2)<<i<<": "<<l[i]->get_nrInmatriculare()<<endl;
+        }*/  //aliniere pe doua coloane
+        int i=1;
+        while(i<=n)
+        {
+            for(int j=1; j<=6; j++)
+            {
+                if(i<n+1)
+                {
+                    if(l[i]->get_nrInmatriculare()!="gol")
+                        cout<<setfill(' ')<<setw(2)<<i<<": "<<l[i]->get_nrInmatriculare()<<"         ";
+                    else
+                        cout<<setfill(' ')<<setw(2)<<i<<": "<<l[i]->get_nrInmatriculare()<<"            ";
+                    i++;
+                }
+            }
+            cout<<endl;
         }
+
     }
     void eliberare_loc(LocParcare& l)
     {
@@ -87,7 +181,7 @@ public:
     }
     void vizualizare_istoric(LocParcare& l)
     {
-        cout<<endl<<"Istoric locului cu id "<<l.idParcare<<":"<<endl;
+        cout<<endl<<"Istoric locului cu id "<<l.idParcare<<": "<<endl;
         for(int i=0; i<5; i++)
         {
             cout<<i+1<<":"<<l.istoric[i]<<endl;
@@ -126,18 +220,24 @@ public:
     }
 };
 
-
-
-
-
 int main()
 {
+    maximizeWindow();
     int i,k, optiune, v1, v2, v3;
     int ok=1;
     string vs1;
     Admin admin;
-    cout<<"Se creeaza parcarea."<<" Cate locuri sunt in parcare? ";
-    cin>>k;
+    while(ok)
+    {
+        cout<<"Se creeaza parcarea."<<" Cate locuri sunt in parcare? ";
+        cin>>k;
+        if(k<=0)
+            {
+                cout<<endl<<"Parcarea trebuie sa aiba minim un loc! ";
+                cin>>k;
+            }
+        else ok=0;
+    }
     const int n=k;
     nrGoale=n;
     LocParcare* locuri[n+1];
@@ -147,7 +247,7 @@ int main()
 
     do
     {
-        cout<<endl<<"          MENIU GESTIONARE"<<endl<<endl;
+        cout<<"                                 MENIU GESTIONARE"<<endl<<endl;
         admin.afisareParcare(locuri, n);
         meniu();
         cin>>optiune;
@@ -157,7 +257,7 @@ int main()
             case 1:
                 ok=1; v1=1;
                 system("CLS");
-                cout<<"          CREARE BILET"<<endl;
+                cout<<"                                 CREARE BILET"<<endl<<endl;
                 admin.afisareParcare(locuri, n);
                 cout<<endl<<"Introduceti id-ul locului de parcare dorit sau 0 pentru a reveni la meniu: "; cin>>v1;
                 if(v1!=0)
@@ -177,22 +277,28 @@ int main()
                     }
                     if(v1!=0)
                     {
-                        cout<<endl<<"Introduceti numarul de inmatriculare al vehiculului care parcheaza pe acest loc: "; cin>>vs1; admin.modifica_numar(*locuri[v1], vs1);
+                        cout<<endl<<"Introduceti numarul de inmatriculare al vehiculului care parcheaza pe acest loc: "; cin>>vs1; convertire(vs1); admin.modifica_numar(*locuri[v1], vs1);
                         cout<<endl<<"Introduceti tariful locului de parcare (RON/ora): "; cin>>v2; admin.modifica_tarif(*locuri[v1], v2);
                         cout<<endl<<"Introduceti ora curenta(doar ora): "; cin>>v2; cout<<endl<<"Si minutul curent: "; cin>>v3; admin.modifica_intrare(*locuri[v1], v2, v3);
                         admin.actualizare_istoric(*locuri[v1], locuri[v1]->get_nrInmatriculare());
-                        nrOcupate++; nrGoale--;
+                        nrOcupate++; nrGoale--; nrVehicule++;
                         system("CLS");
                         cout<<endl<<"Biletul a fost creat cu succes."<<endl;
                         locuri[v1]->afisare_detalii();
+                        if(verificaExistenta(p, locuri[v1]->get_nrInmatriculare())==0)
+                            {
+                                vehiculNou(p, locuri[v1]->get_nrInmatriculare(), nrVehicule); system("CLS");
+                            }
                     }
+                    else
+                        system("CLS");
                 }
                break;
 
             case 2:
                 ok=1; v1=1;
                 system("CLS");
-                cout<<"          OPRIRE BILET"<<endl;
+                cout<<"                                 OPRIRE BILET"<<endl<<endl;
                 admin.afisareParcare(locuri, n);
                 cout<<endl<<"Introduceti id-ul locului care se elibereaza sau 0 pentru a reveni la meniu: "; cin>>v1;
                 if(v1!=0)
@@ -255,9 +361,9 @@ int main()
             case 4:
                 v1=1; ok=1;
                 system("CLS");
-                cout<<"          VIZUALIZARE ISTORIC"<<endl;
+                cout<<"                                 VIZUALIZARE ISTORIC"<<endl<<endl;
                 admin.afisareParcare(locuri, n);
-                cout<<endl<<"Introduceti id-ul locului caruia doriti sa vedeti istoricul: "; cin>>v1;
+                cout<<endl<<"Introduceti id-ul locului caruia doriti sa vedeti istoricul sau 0 pentru a reveni: "; cin>>v1;
                 if(v1!=0)
                 {
                     while(ok)
@@ -278,9 +384,24 @@ int main()
                 break;
 
             case 5:
+                v1=1;
+                system("CLS");
+                cout<<"         VIZUALIZARE VEHICULE"<<endl<<endl;
+                admin.afisareVehicule(p);
+                cout<<endl<<"Introduceti 0 pentru a reveni la meniu: "; cin>>v1;
+                while(v1)
+                {
+                    system("CLS");
+                    cout<<endl<<"Introduceti 0 pentru a reveni la meniu"; cin>>v1;
+                }
+                system("CLS");
+                break;
+
+            case 6:
                 return 0;
 
             default:
+                system("CLS");
                 cout<<endl<<"Nu este o optiune valida"<<endl;
         }
     } while (1);
