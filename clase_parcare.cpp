@@ -21,7 +21,7 @@ void convertire(string& s)  //pt transformarea in majuscule a literelor din nr i
     }
 }
 
-void infrum(string& s)  //transforma in majuscula datele vehiculelor
+void infrum(string& s)  //transforma in majuscula prima litera datele vehiculelor
 {
     s[0]=toupper(s[0]);
 }
@@ -56,7 +56,6 @@ void vehiculNou(vehicul*& p, string nrI, int idV)
             iter=iter->link;
         iter->link=x;
     }
-    nrVehicule++;
 }
 
 int verificaExistenta(vehicul*& p, string nrI) //returneaza 0 daca nu este deja salvat
@@ -99,6 +98,13 @@ protected:
     string nrInmatriculare;
     int idParcare, oraIntrare, minIntrare, oraIesire, minIesire, tarif;
 public:
+    ~LocParcare()
+    {
+        nrInmatriculare="gol";
+        oraIntrare=-1;
+        minIntrare=-1;
+        tarif=-1;
+    }
     LocParcare(string nrInmatriculare, int idParcare, int oraIntrare, int minIntrare, int oraIesire, int minIesire, int tarif)
     {
         this->nrInmatriculare=nrInmatriculare; this->idParcare=idParcare; this->oraIntrare=oraIntrare; this->minIntrare=minIntrare; this->oraIesire=oraIesire; this->minIesire=minIesire; this->tarif=tarif;
@@ -133,10 +139,10 @@ public:
         else
         {
             vehicul* iter=p;
-            cout<<iter->id<<": "<<iter->nrInmat<<", "<<iter->numeProp<<", "<<iter->marca<<" "<<iter->model<<" "<<", "<<iter->culoare<<endl;
-            while(iter->link!=NULL)
+            while(iter!=NULL)
             {
                 cout<<iter->id<<": "<<iter->nrInmat<<", "<<iter->numeProp<<", "<<iter->marca<<" "<<iter->model<<" "<<iter->culoare<<endl;
+                iter=iter->link;
             }
         }
     }
@@ -162,7 +168,7 @@ public:
                 if(i<n+1)
                 {
                     if(l[i]->get_nrInmatriculare()!="gol")
-                        cout<<setfill(' ')<<setw(2)<<i<<": "<<l[i]->get_nrInmatriculare()<<"         ";
+                        cout<<setfill(' ')<<setw(2)<<i<<": "<<l[i]->get_nrInmatriculare()<<"        ";
                     else
                         cout<<setfill(' ')<<setw(2)<<i<<": "<<l[i]->get_nrInmatriculare()<<"            ";
                     i++;
@@ -172,13 +178,13 @@ public:
         }
 
     }
-    void eliberare_loc(LocParcare& l)
+    /*void eliberare_loc(LocParcare& l) //destructor
     {
         l.nrInmatriculare="gol";
         l.oraIntrare=-1;
         l.minIntrare=-1;
         l.tarif=-1;
-    }
+    }*/
     void vizualizare_istoric(LocParcare& l)
     {
         cout<<endl<<"Istoric locului cu id "<<l.idParcare<<": "<<endl;
@@ -247,8 +253,9 @@ int main()
 
     do
     {
-        cout<<"                                 MENIU GESTIONARE"<<endl<<endl;
+        cout<<"                                     MENIU GESTIONARE"<<endl<<endl;
         admin.afisareParcare(locuri, n);
+        cout<<endl<<"                     Parcarea are "<<nrOcupate<<" locuri ocupate si "<<nrGoale<<" locuri goale"<<endl;
         meniu();
         cin>>optiune;
 
@@ -257,7 +264,7 @@ int main()
             case 1:
                 ok=1; v1=1;
                 system("CLS");
-                cout<<"                                 CREARE BILET"<<endl<<endl;
+                cout<<"                                         CREARE BILET"<<endl<<endl;
                 admin.afisareParcare(locuri, n);
                 cout<<endl<<"Introduceti id-ul locului de parcare dorit sau 0 pentru a reveni la meniu: "; cin>>v1;
                 if(v1!=0)
@@ -293,12 +300,14 @@ int main()
                     else
                         system("CLS");
                 }
+                else
+                        system("CLS");
                break;
 
             case 2:
                 ok=1; v1=1;
                 system("CLS");
-                cout<<"                                 OPRIRE BILET"<<endl<<endl;
+                cout<<"                                         OPRIRE BILET"<<endl<<endl;
                 admin.afisareParcare(locuri, n);
                 cout<<endl<<"Introduceti id-ul locului care se elibereaza sau 0 pentru a reveni la meniu: "; cin>>v1;
                 if(v1!=0)
@@ -328,10 +337,12 @@ int main()
                             cout<<endl<<"Biletul a fost oprit cu succes."<<endl;
                             nrOcupate--; nrGoale++;
                             admin.calc_plata(*locuri[v1]);
-                            admin.eliberare_loc(*locuri[v1]);
+                            delete(locuri[v1]);
                         }
                     }
                 }
+                else
+                        system("CLS");
                 break;
 
             case 3:
@@ -356,12 +367,14 @@ int main()
                         locuri[v1]->afisare_detalii();
                     }
                 }
+                else
+                        system("CLS");
                 break;
 
             case 4:
                 v1=1; ok=1;
                 system("CLS");
-                cout<<"                                 VIZUALIZARE ISTORIC"<<endl<<endl;
+                cout<<"                                     VIZUALIZARE ISTORIC"<<endl<<endl;
                 admin.afisareParcare(locuri, n);
                 cout<<endl<<"Introduceti id-ul locului caruia doriti sa vedeti istoricul sau 0 pentru a reveni: "; cin>>v1;
                 if(v1!=0)
@@ -381,6 +394,8 @@ int main()
                         admin.vizualizare_istoric(*locuri[v1]);
                     }
                 }
+                else
+                        system("CLS");
                 break;
 
             case 5:
