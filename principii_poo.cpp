@@ -124,6 +124,32 @@ public:
             }
         cout<<"----------------------------------------------------------"<<endl;
     }
+    void afisareAnimale(Peste* p[], Broasca* b[], Homar* h[])
+    {
+        if(nrAnimale==0)
+            {
+                cout<<"Nu exista nici un animal in acvariu!"<<endl;
+                return;
+            }
+            if(nrPesti!=0)
+            {
+                cout<<"Pesti:"<<endl;
+                for(int iter=1; iter<=nrPesti; iter++)
+                    p[iter]->afisare_p();
+            }
+            if(nrBroaste!=0)
+            {
+                cout<<endl<<"Broaste:"<<endl;
+                for(int iter=1; iter<=nrBroaste; iter++)
+                    b[iter]->afisare_b();
+            }
+            if(nrHomari!=0)
+            {
+                cout<<endl<<"Homari:"<<endl;
+                for(int iter=1; iter<=nrHomari; iter++)
+                    h[iter]->afisare_h();
+            }
+    }
 }admin;
 
 
@@ -287,29 +313,7 @@ int main()
 
         case 3:
             system("CLS");
-            if(nrAnimale==0)
-            {
-                cout<<"Nu exista nici un animal in acvariu!"<<endl;
-                break;
-            }
-            if(nrPesti!=0)
-            {
-                cout<<"Pesti:"<<endl;
-                for(int iter=1; iter<=nrPesti; iter++)
-                    pesti[iter]->afisare_p();
-            }
-            if(nrBroaste!=0)
-            {
-                cout<<endl<<"Broaste:"<<endl;
-                for(int iter=1; iter<=nrBroaste; iter++)
-                    broaste[iter]->afisare_b();
-            }
-            if(nrHomari!=0)
-            {
-                cout<<endl<<"Homari:"<<endl;
-                for(int iter=1; iter<=nrHomari; iter++)
-                    homari[iter]->afisare_h();
-            }
+            admin.afisareAnimale(pesti, broaste, homari);
             cout<<endl<<"Introduceti 0 pentru a reveni la meniu: "; cin>>v1;
             while(v1 || cin.fail())
             {
