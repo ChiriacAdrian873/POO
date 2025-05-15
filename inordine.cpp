@@ -4,9 +4,31 @@
 using namespace std;
 
 struct nod{
-int cheie;
+int cheie, init;
 nod *fs, *fd;
 };
+
+void inserare(nod*& rad, int x)
+{
+    if(rad!=NULL)
+    {
+        if(rad->cheie==x)
+            return;
+        else
+            if(rad->cheie>x)
+                inserare(rad->fs, x);
+            else
+                inserare(rad->fd, x);
+    }
+    else
+    {
+        rad=new nod;
+        rad->cheie=x;
+        rad->fs=NULL;
+        rad->fd=NULL;
+        rad->init=1;
+    }
+}
 
 void meniu(){
 cout<<"1. Adaugare nod"<<endl;
@@ -52,60 +74,40 @@ void postordine(nod* x)
 }
 
 int main(){
-
-int k=1, v1, optiune, optiune2, ok=0;
-nod* iter;
-nod* noduri[100];
-noduri[0]=new nod;
-cout<<"Introduceti cheia primului nod: "; cin>>v1; noduri[0]->cheie=v1;
+int v1, optiune, optiune2;
+nod* rad;
+cout<<"Introduceti cheia primului nod: "; cin>>v1;
+rad=new nod; rad->cheie=v1; rad->fd=NULL; rad->fs=NULL; rad->init=1;
 system("CLS");
 do{
     meniu();
     cin>>optiune;
     switch(optiune){
     case 1:
-        iter=noduri[0];
         cout<<"Cheia nodului: "; cin>>v1;
-        while(!ok)
-        {
-            if(v1<=iter->cheie)
-            {
-                if(iter->fs!=NULL)
-                    iter=iter->fs;
-                else
-                {
-                    noduri[k]=new nod; noduri[k]->cheie=v1; iter->fs=noduri[k]; k++; ok=1;
-                }
-            }
-            else if(v1>=iter->cheie)
-            {
-                if(iter->fd!=NULL)
-                    iter=iter->fd;
-                else
-                {
-                    noduri[k]=new nod; noduri[k]->cheie=v1; iter->fd=noduri[k];  k++; ok=1;
-                }
-            }
-        }
-        ok=0;
+        inserare(rad, v1);
         system("CLS");
-        cout<<"Nodul cu cheia "<<v1<<" a fost introdus; este fiul nodului cu cheia "<<iter->cheie<<endl;
         break;
     case 2:
+        system("CLS");
         meniu2();
         cin>>optiune2;
         switch(optiune2)
         {
             case 1:
-                inordine(noduri[0]);
+                system("CLS");
+                inordine(rad); cout<<endl;
                 break;
             case 2:
-                preordine(noduri[0]);
+                system("CLS");
+                preordine(rad); cout<<endl;
                 break;
             case 3:
-                postordine(noduri[0]);
+                system("CLS");
+                postordine(rad); cout<<endl;
                 break;
             case 4:
+                system("CLS");
                 break;
             default:
                 cout<<"Nu este o optiune valida"<<endl;
